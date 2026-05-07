@@ -115,9 +115,12 @@ export default function AdminDashboardPage() {
         fetch(`/api/schedules?t=${t}`, { cache: 'no-store' }),
         fetch(`/api/courses?t=${t}`, { cache: 'no-store' })
       ]);
-      setQueues(await qRes.json());
-      setSchedules(await sRes.json());
-      setCourses(await cRes.json());
+      const qData = await qRes.json();
+      const sData = await sRes.json();
+      const cData = await cRes.json();
+      if (Array.isArray(qData)) setQueues(qData);
+      if (Array.isArray(sData)) setSchedules(sData);
+      if (Array.isArray(cData)) setCourses(cData);
     } catch (err) {
       console.error('Failed to fetch data:', err);
     }
@@ -128,7 +131,7 @@ export default function AdminDashboardPage() {
     try {
       const res = await fetch(`/api/queue?t=${Date.now()}`, { cache: 'no-store' });
       const data = await res.json();
-      setQueues(data);
+      if (Array.isArray(data)) setQueues(data);
     } catch (err) {
       console.error('Failed to fetch queues:', err);
     }
