@@ -8,8 +8,7 @@ const queueController = {
     const schedule = await Schedule.getById(schedule_id);
     if (!schedule) throw new Error('Schedule not found');
 
-    // Create queue entry (auto-assigns queue number via RPC)
-    // course_id is passed through to the RPC and stored as metadata
+    // Create queue entry (auto-assigns queue number)
     const entry = await QueueEntry.create({
       schedule_id,
       course_id,
@@ -19,8 +18,8 @@ const queueController = {
       student_id
     });
 
-    // Ensure queue config exists for this year-level group
-    await QueueConfig.getOrCreate(schedule_id, year_level, enrollment_type);
+    // Ensure queue config exists for this group
+    await QueueConfig.getOrCreate(schedule_id, course_id, year_level, enrollment_type);
 
     return entry;
   },
@@ -32,6 +31,7 @@ const queueController = {
     // Fetch up to `count` waiting entries
     const waitingEntries = await QueueEntry.getNextNWaiting(
       config.schedule_id,
+      config.course_id,
       config.year_level,
       config.enrollment_type,
       count
@@ -52,14 +52,9 @@ const queueController = {
   },
 
   async skipCurrent(entryId) {
-    // Only update status — student retains their original queue number
     const updated = await QueueEntry.updateStatus(entryId, 'skipped');
-    return updated;
-  },
-
-  async removeEntry(entryId) {
-    // Soft-delete: mark as 'removed' so Find Queue can still detect the student
-    const updated = await QueueEntry.updateStatus(entryId, 'removed');
+    // Move skipped student to the bottom of the queue (new highest queue_number)
+    await QueueEntry.moveToBottom(entryId);
     return updated;
   },
 
@@ -74,9 +69,10 @@ const queueController = {
 
     const { entry, position, aheadCount } = positionData;
 
-    // Get the queue config for current serving info (year-level grouping)
+    // Get the queue config for current serving info
     const config = await QueueConfig.getOrCreate(
       entry.schedule_id,
+      entry.course_id,
       entry.year_level,
       entry.enrollment_type
     );
@@ -96,6 +92,7 @@ const queueController = {
       configs.map(async (config) => {
         const counts = await QueueEntry.getCountByStatus(
           config.schedule_id,
+          config.course_id,
           config.year_level,
           config.enrollment_type
         );

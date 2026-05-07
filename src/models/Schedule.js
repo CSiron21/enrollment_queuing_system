@@ -4,7 +4,7 @@ const Schedule = {
   async getAll() {
     const { data, error } = await supabase
       .from('enrollment_schedules')
-      .select('*')
+      .select('*, courses:course_id (code, name)')
       .order('schedule_date')
       .order('start_time');
     if (error) throw error;
@@ -14,18 +14,18 @@ const Schedule = {
   async getById(id) {
     const { data, error } = await supabase
       .from('enrollment_schedules')
-      .select('*')
+      .select('*, courses:course_id (code, name)')
       .eq('id', id)
       .single();
     if (error) throw error;
     return data;
   },
 
-  async create({ enrollment_type, year_level, schedule_date, start_time, end_time }) {
+  async create({ course_id, enrollment_type, year_level, schedule_date, start_time, end_time }) {
     const { data, error } = await getServiceSupabase()
       .from('enrollment_schedules')
-      .insert({ enrollment_type, year_level, schedule_date, start_time, end_time })
-      .select('*')
+      .insert({ course_id, enrollment_type, year_level, schedule_date, start_time, end_time })
+      .select('*, courses:course_id (code, name)')
       .single();
     if (error) throw error;
     return data;
@@ -36,7 +36,7 @@ const Schedule = {
       .from('enrollment_schedules')
       .update(updates)
       .eq('id', id)
-      .select('*')
+      .select('*, courses:course_id (code, name)')
       .single();
     if (error) throw error;
     return data;

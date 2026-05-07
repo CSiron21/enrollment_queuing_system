@@ -28,6 +28,7 @@ export default function AdminDashboardPage() {
 
   // Form states
   const [scheduleForm, setScheduleForm] = useState({
+    course_id: '',
     enrollment_type: 'block_section',
     year_level: '1',
     schedule_date: '',
@@ -148,6 +149,7 @@ export default function AdminDashboardPage() {
     try {
       const data = await fetchQueueEntriesDirectly({
         schedule_id: config.schedule_id,
+        course_id: config.course_id,
         year_level: config.year_level,
         enrollment_type: config.enrollment_type
       });
@@ -205,6 +207,7 @@ export default function AdminDashboardPage() {
     try {
       const params = new URLSearchParams({
         schedule_id: config.schedule_id,
+        course_id: config.course_id,
         year_level: config.year_level,
         enrollment_type: config.enrollment_type
       });
@@ -326,44 +329,6 @@ export default function AdminDashboardPage() {
     }
   };
 
-  const handleDeleteEntry = async (entryId, studentName) => {
-    if (!confirm(`Remove ${studentName} from the queue for failing to appear on time?`)) return;
-    setLoadingAction(`delete-${entryId}`);
-
-    // OPTIMISTIC UI: remove entry from list
-    setQueueEntries(prev => prev.filter(e => e.id !== entryId));
-    if (selectedQueue) {
-      const prevEntry = queueEntries.find(e => e.id === entryId);
-      const updateData = (q) => {
-        if (q.id === selectedQueue.id) {
-          const counts = { ...q.counts };
-          if (prevEntry?.status === 'serving') counts.serving = Math.max(0, (counts.serving || 0) - 1);
-          if (prevEntry?.status === 'skipped') counts.skipped = Math.max(0, (counts.skipped || 0) - 1);
-          return { ...q, counts };
-        }
-        return q;
-      };
-      setQueues(prev => prev.map(updateData));
-      setSelectedQueue(prev => updateData(prev));
-    }
-
-    try {
-      const res = await authFetch('/api/queue/status', {
-        method: 'POST',
-        body: JSON.stringify({ entryId, action: 'delete' })
-      });
-      if (!res.ok) { const d = await res.json(); throw new Error(d.error); }
-      showToast(`${studentName} has been removed from the queue for failing to appear on time.`, 'success');
-    } catch (err) {
-      showToast(err.message || 'Failed to remove student', 'error');
-      // Revert optimistic updates
-      fetchQueuesOnly();
-      if (selectedQueue) fetchQueueEntries(selectedQueue);
-    } finally {
-      setLoadingAction(null);
-    }
-  };
-
   const handleSaveSchedule = async (e) => {
     e.preventDefault();
 
@@ -418,7 +383,7 @@ export default function AdminDashboardPage() {
 
       setEditingSchedule(null);
       setScheduleForm({
-        enrollment_type: 'block_section', year_level: '1',
+        course_id: '', enrollment_type: 'block_section', year_level: '1',
         schedule_date: '', start_time: '', end_time: ''
       });
     } catch (err) {
@@ -611,6 +576,7 @@ export default function AdminDashboardPage() {
   const openEditSchedule = (schedule) => {
     setEditingSchedule(schedule);
     setScheduleForm({
+      course_id: schedule.course_id,
       enrollment_type: schedule.enrollment_type,
       year_level: String(schedule.year_level),
       schedule_date: schedule.schedule_date,
@@ -835,7 +801,7 @@ export default function AdminDashboardPage() {
                         >
                           <div className="admin-queue-item-info">
                             <div style={{ fontWeight: 700, fontSize: '0.9375rem' }}>
-                              {yearSuffix(q.year_level)} Year
+                              {q.courses?.code} — {yearSuffix(q.year_level)} Year
                             </div>
                             <div style={{ fontSize: '0.8125rem', color: '#9ca3af' }}>
                               {typeLabel(q.enrollment_type)} · Serving #{q.current_serving || 0}
@@ -859,7 +825,7 @@ export default function AdminDashboardPage() {
                   <div className="card">
                     <div className="card-header admin-queue-header">
                       <h3 className="card-title">
-                        {yearSuffix(selectedQueue.year_level)} Year — {typeLabel(selectedQueue.enrollment_type)}
+                        {selectedQueue.courses?.code} — {yearSuffix(selectedQueue.year_level)} Year
                       </h3>
                       <div className="admin-queue-controls" style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                         <select
@@ -925,7 +891,6 @@ export default function AdminDashboardPage() {
                               <th>#</th>
                               <th>Student</th>
                               <th>ID</th>
-                              <th>Course</th>
                               <th>Status</th>
                               <th>Actions</th>
                             </tr>
@@ -933,13 +898,12 @@ export default function AdminDashboardPage() {
                           <tbody>
                             {queueEntries.length === 0 ? (
                               <tr>
-                                <td colSpan="6" style={{ textAlign: 'center', color: '#9ca3af', padding: '24px' }}>
+                                <td colSpan="5" style={{ textAlign: 'center', color: '#9ca3af', padding: '24px' }}>
                                   No entries in this queue
                                 </td>
                               </tr>
                             ) : (
                               [...queueEntries]
-                                .filter(e => e.status !== 'removed')
                                 .sort((a, b) => {
                                   const order = { serving: 0, skipped: 1, waiting: 2, completed: 3 };
                                   return (order[a.status] ?? 4) - (order[b.status] ?? 4);
@@ -949,11 +913,8 @@ export default function AdminDashboardPage() {
                                     <td style={{ fontWeight: 700 }}>{entry.queue_number}</td>
                                     <td>{entry.student_name}</td>
                                     <td style={{ fontSize: '0.8125rem', color: '#6b7280' }}>{entry.student_id}</td>
-                                    <td style={{ fontSize: '0.8125rem', fontWeight: 600 }}>{entry.courses?.code || '—'}</td>
                                     <td>
-                                      <span className={`badge badge-${entry.status === 'skipped' ? 'serving' : entry.status}`}>
-                                        {entry.status === 'skipped' ? 'in progress' : entry.status}
-                                      </span>
+                                      <span className={`badge badge-${entry.status}`}>{entry.status}</span>
                                     </td>
                                     <td>
                                       {entry.status === 'serving' && (
@@ -972,13 +933,6 @@ export default function AdminDashboardPage() {
                                           >
                                             {loadingAction === `skip-${entry.id}` ? '...' : 'Skip'}
                                           </button>
-                                          <button
-                                            className="btn btn-danger btn-sm"
-                                            onClick={() => handleDeleteEntry(entry.id, entry.student_name)}
-                                            disabled={loadingAction === `delete-${entry.id}`}
-                                          >
-                                            {loadingAction === `delete-${entry.id}` ? '...' : '🗑'}
-                                          </button>
                                         </div>
                                       )}
                                       {entry.status === 'skipped' && (
@@ -989,13 +943,6 @@ export default function AdminDashboardPage() {
                                             disabled={loadingAction === `complete-${entry.id}`}
                                           >
                                             {loadingAction === `complete-${entry.id}` ? '...' : '✓ Done'}
-                                          </button>
-                                          <button
-                                            className="btn btn-danger btn-sm"
-                                            onClick={() => handleDeleteEntry(entry.id, entry.student_name)}
-                                            disabled={loadingAction === `delete-${entry.id}`}
-                                          >
-                                            {loadingAction === `delete-${entry.id}` ? '...' : '🗑'}
                                           </button>
                                         </div>
                                       )}
@@ -1037,7 +984,7 @@ export default function AdminDashboardPage() {
                 <button className="btn btn-primary" onClick={() => {
                   setEditingSchedule(null);
                   setScheduleForm({
-                    enrollment_type: 'block_section', year_level: '1',
+                    course_id: '', enrollment_type: 'block_section', year_level: '1',
                     schedule_date: '', start_time: '', end_time: ''
                   });
                   setShowScheduleModal(true);
@@ -1050,6 +997,7 @@ export default function AdminDashboardPage() {
               <table className="table">
                 <thead>
                   <tr>
+                    <th>Course</th>
                     <th>Type</th>
                     <th>Year Level</th>
                     <th>Date</th>
@@ -1060,13 +1008,14 @@ export default function AdminDashboardPage() {
                 <tbody>
                   {schedules.length === 0 ? (
                     <tr>
-                      <td colSpan="5" style={{ textAlign: 'center', color: '#9ca3af', padding: '24px' }}>
+                      <td colSpan="6" style={{ textAlign: 'center', color: '#9ca3af', padding: '24px' }}>
                         No schedules created yet
                       </td>
                     </tr>
                   ) : (
                     schedules.map(s => (
                       <tr key={s.id}>
+                        <td>{s.courses?.code || '—'}</td>
                         <td>{typeLabel(s.enrollment_type)}</td>
                         <td>{yearSuffix(s.year_level)} Year</td>
                         <td>{s.schedule_date}</td>
@@ -1235,6 +1184,20 @@ export default function AdminDashboardPage() {
               {editingSchedule ? 'Edit Schedule' : 'Add Schedule'}
             </h2>
             <form onSubmit={handleSaveSchedule}>
+              <div className="form-group">
+                <label className="form-label">Course / Program</label>
+                <select
+                  className="form-select"
+                  value={scheduleForm.course_id || ''}
+                  onChange={e => setScheduleForm(f => ({ ...f, course_id: e.target.value }))}
+                  required
+                >
+                  <option value="">Select a course</option>
+                  {courses.map(c => (
+                    <option key={c.id} value={c.id}>{c.code} — {c.name}</option>
+                  ))}
+                </select>
+              </div>
               <div className="form-group">
                 <label className="form-label">Enrollment Type</label>
                 <select

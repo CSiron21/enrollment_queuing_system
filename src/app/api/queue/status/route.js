@@ -21,8 +21,6 @@ export async function POST(request) {
       result = await queueController.completeCurrent(parsed.data.entryId);
     } else if (parsed.data.action === 'skip') {
       result = await queueController.skipCurrent(parsed.data.entryId);
-    } else if (parsed.data.action === 'delete') {
-      result = await queueController.removeEntry(parsed.data.entryId);
     }
 
     return NextResponse.json(result);

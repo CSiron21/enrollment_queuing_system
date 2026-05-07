@@ -85,15 +85,36 @@ export default function QueueBoardPage() {
   }, [fetchQueuesInitial, fetchQueuesRealtime]);
 
   const yearSuffix = (y) => ['', '1st', '2nd', '3rd', '4th'][y] || `${y}th`;
-  const typeLabel = (t) => t === 'block_section' ? 'Block Section' : 'Irregular';
+  const typeLabel = (t) => t === 'block_section' ? 'Block' : 'Irreg';
 
-  // Group queues by enrollment type
-  const blockQueues = queues
-    .filter(q => q.enrollment_type === 'block_section')
-    .sort((a, b) => a.year_level - b.year_level);
-  const irregQueues = queues
-    .filter(q => q.enrollment_type === 'irregular')
-    .sort((a, b) => a.year_level - b.year_level);
+  // Build the matrix structure:
+  // Group by course, then collect all unique (year_level, enrollment_type) combos as columns
+  const grouped = queues.reduce((acc, q) => {
+    const courseCode = q.courses?.code || 'Unknown';
+    const courseName = q.courses?.name || '';
+    if (!acc[courseCode]) acc[courseCode] = { name: courseName, queues: [] };
+    acc[courseCode].queues.push(q);
+    return acc;
+  }, {});
+
+  // Collect all unique column keys across all courses
+  const allColumnKeys = new Set();
+  queues.forEach(q => {
+    allColumnKeys.add(`${q.year_level}-${q.enrollment_type}`);
+  });
+
+  // Sort columns: by year_level first, then block before irregular
+  const sortedColumns = [...allColumnKeys].sort((a, b) => {
+    const [ya, ta] = a.split('-');
+    const [yb, tb] = b.split('-');
+    if (ya !== yb) return Number(ya) - Number(yb);
+    return ta === 'block_section' ? -1 : 1;
+  });
+
+  const columnLabels = sortedColumns.map(key => {
+    const [y, t] = key.split('-');
+    return { key, label: `${yearSuffix(Number(y))} Yr`, sub: typeLabel(t) };
+  });
 
   if (loading) {
     return (
@@ -105,67 +126,6 @@ export default function QueueBoardPage() {
       </div>
     );
   }
-
-  const renderQueueTable = (queueList, title) => {
-    if (queueList.length === 0) return null;
-    return (
-      <div style={{ marginBottom: '24px' }}>
-        <div style={{
-          fontSize: '0.875rem',
-          fontWeight: 700,
-          textTransform: 'uppercase',
-          letterSpacing: '0.08em',
-          color: 'var(--qb-accent)',
-          marginBottom: '8px',
-          paddingLeft: '4px'
-        }}>
-          {title}
-        </div>
-        <table className="qb-matrix">
-          <thead>
-            <tr>
-              <th>Year Level</th>
-              <th>Now Serving</th>
-              <th style={{ textAlign: 'center' }}>Waiting</th>
-              <th style={{ textAlign: 'center' }}>Done</th>
-            </tr>
-          </thead>
-          <tbody>
-            {queueList.map(q => {
-              const isActive = q.current_serving && q.current_serving > 0;
-              const isFlashing = flashCells[q.id];
-              return (
-                <tr key={q.id}>
-                  <td>
-                    <span style={{ fontWeight: 700 }}>{yearSuffix(q.year_level)} Year</span>
-                  </td>
-                  <td>
-                    <div className={`qb-cell ${isActive ? 'qb-cell--active' : ''} ${isFlashing ? 'qb-cell--flash' : ''}`}>
-                      <div className="qb-cell-number">
-                        {q.current_serving || '—'}
-                      </div>
-                    </div>
-                  </td>
-                  <td style={{ textAlign: 'center' }}>
-                    <div className="qb-cell-stat">
-                      <span className="qb-dot qb-dot--waiting"></span>
-                      <span className="qb-cell-stat-value--waiting">{q.counts?.waiting || 0}</span>
-                    </div>
-                  </td>
-                  <td style={{ textAlign: 'center' }}>
-                    <div className="qb-cell-stat">
-                      <span className="qb-dot qb-dot--done"></span>
-                      <span className="qb-cell-stat-value--done">{q.counts?.completed || 0}</span>
-                    </div>
-                  </td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
-      </div>
-    );
-  };
 
   return (
     <div className="qb">
@@ -196,17 +156,81 @@ export default function QueueBoardPage() {
 
       {/* Body */}
       <div className="qb-body">
-        {queues.length === 0 ? (
+        {Object.keys(grouped).length === 0 ? (
           <div className="qb-empty-state">
             <div className="qb-empty-state-icon">📭</div>
             <div className="qb-empty-state-text">No queues at the moment</div>
             <div className="qb-empty-state-sub">Queues will appear here once enrollment schedules are created.</div>
           </div>
         ) : (
-          <>
-            {renderQueueTable(blockQueues, '📋 Block Section')}
-            {renderQueueTable(irregQueues, '📋 Irregular / Free Select')}
-          </>
+          <table className="qb-matrix">
+            <thead>
+              <tr>
+                <th>Course</th>
+                {columnLabels.map(col => (
+                  <th key={col.key}>
+                    {col.label}
+                    <br />
+                    <span style={{ fontSize: '0.5625rem', fontWeight: 500, opacity: 0.7 }}>{col.sub}</span>
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {Object.entries(grouped).map(([courseCode, { name, queues: courseQueues }]) => {
+                // Build a lookup map for this course's queues
+                const queueMap = {};
+                courseQueues.forEach(q => {
+                  queueMap[`${q.year_level}-${q.enrollment_type}`] = q;
+                });
+
+                return (
+                  <tr key={courseCode}>
+                    <td>
+                      <span style={{ color: 'var(--qb-accent)', fontWeight: 700 }}>{courseCode}</span>
+                      <br />
+                      <span style={{ fontSize: '0.6875rem', color: 'var(--qb-text-muted)', fontWeight: 400 }}>{name}</span>
+                    </td>
+                    {sortedColumns.map(colKey => {
+                      const q = queueMap[colKey];
+                      if (!q) {
+                        return (
+                          <td key={colKey}>
+                            <div className="qb-cell qb-cell--empty">
+                              <div className="qb-cell-number" style={{ color: 'var(--qb-empty)' }}>—</div>
+                              <div className="qb-cell-label">No Queue</div>
+                            </div>
+                          </td>
+                        );
+                      }
+                      const isActive = q.current_serving && q.current_serving > 0;
+                      const isFlashing = flashCells[q.id];
+                      return (
+                        <td key={colKey}>
+                          <div className={`qb-cell ${isActive ? 'qb-cell--active' : ''} ${isFlashing ? 'qb-cell--flash' : ''}`}>
+                            <div className="qb-cell-number">
+                              {q.current_serving || '—'}
+                            </div>
+                            <div className="qb-cell-label">Now Serving</div>
+                            <div className="qb-cell-stats">
+                              <div className="qb-cell-stat">
+                                <span className="qb-dot qb-dot--waiting"></span>
+                                <span className="qb-cell-stat-value--waiting">{q.counts?.waiting || 0}</span>
+                              </div>
+                              <div className="qb-cell-stat">
+                                <span className="qb-dot qb-dot--done"></span>
+                                <span className="qb-cell-stat-value--done">{q.counts?.completed || 0}</span>
+                              </div>
+                            </div>
+                          </div>
+                        </td>
+                      );
+                    })}
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         )}
       </div>
     </div>

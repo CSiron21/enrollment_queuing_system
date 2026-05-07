@@ -152,9 +152,10 @@ export default function RegisterPage() {
       const schedulesRes = await fetch(`/api/schedules?t=${t}`, { cache: 'no-store' });
       const freshSchedules = await schedulesRes.json();
 
-      // Find the matching schedule (by year level and enrollment type only)
+      // Find the matching schedule (exists for this course/year/type)
       const schedule = freshSchedules.find(
-        s => s.year_level === parseInt(form.year_level) &&
+        s => s.course_id === form.course_id &&
+             s.year_level === parseInt(form.year_level) &&
              s.enrollment_type === form.enrollment_type
       );
 

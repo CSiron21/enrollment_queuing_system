@@ -5,6 +5,7 @@ const uuid = z.string().uuid('Invalid UUID format');
 
 // Schedule validation
 export const createScheduleSchema = z.object({
+  course_id: uuid,
   enrollment_type: z.enum(['block_section', 'irregular'], { message: 'Must be "block_section" or "irregular"' }),
   year_level: z.number().int().min(1).max(4, 'Year level must be between 1 and 4'),
   schedule_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be YYYY-MM-DD format'),
@@ -41,7 +42,7 @@ export const callNextSchema = z.object({
 
 export const statusChangeSchema = z.object({
   entryId: uuid,
-  action: z.enum(['complete', 'skip', 'delete'], { message: 'Action must be "complete", "skip", or "delete"' })
+  action: z.enum(['complete', 'skip'], { message: 'Action must be "complete" or "skip"' })
 });
 
 // Helper to validate and return parsed data or error response
