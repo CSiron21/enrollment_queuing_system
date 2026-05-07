@@ -9,16 +9,16 @@
 import { supabase } from '@/lib/supabase';
 
 /**
- * Fetch all queue configs with their associated course/schedule info and entry counts.
+ * Fetch all queue configs with their associated schedule info and entry counts.
  * Mirrors the data shape returned by GET /api/queue (QueueConfig.getAll + counts).
+ * Queues are grouped by (schedule_id, year_level, enrollment_type) — no course_id.
  */
 export async function fetchQueuesDirectly() {
-  // 1. Fetch all queue configs with course and schedule info
+  // 1. Fetch all queue configs with schedule info
   const { data: configs, error: configError } = await supabase
     .from('queue_configs')
     .select(`
       *,
-      courses:course_id (code, name),
       enrollment_schedules:schedule_id (schedule_date, start_time, end_time, enrollment_type, year_level)
     `)
     .order('year_level');
@@ -32,7 +32,6 @@ export async function fetchQueuesDirectly() {
         .from('queue_entries')
         .select('status')
         .eq('schedule_id', config.schedule_id)
-        .eq('course_id', config.course_id)
         .eq('year_level', config.year_level)
         .eq('enrollment_type', config.enrollment_type);
 
@@ -51,13 +50,16 @@ export async function fetchQueuesDirectly() {
 /**
  * Fetch queue entries for a specific queue config.
  * Mirrors the data shape returned by GET /api/queue-entries (QueueEntry.getByGroup).
+ * Grouped by (schedule_id, year_level, enrollment_type) — no course_id.
  */
-export async function fetchQueueEntriesDirectly({ schedule_id, course_id, year_level, enrollment_type }) {
+export async function fetchQueueEntriesDirectly({ schedule_id, year_level, enrollment_type }) {
   const { data, error } = await supabase
     .from('queue_entries')
-    .select('*')
+    .select(`
+      *,
+      courses:course_id (code, name)
+    `)
     .eq('schedule_id', schedule_id)
-    .eq('course_id', course_id)
     .eq('year_level', year_level)
     .eq('enrollment_type', enrollment_type)
     .order('queue_number', { ascending: true });
@@ -91,7 +93,6 @@ export async function fetchStudentStatusDirectly(entryId) {
     .from('queue_entries')
     .select('*', { count: 'exact', head: true })
     .eq('schedule_id', entry.schedule_id)
-    .eq('course_id', entry.course_id)
     .eq('year_level', entry.year_level)
     .eq('enrollment_type', entry.enrollment_type)
     .eq('status', 'waiting')
@@ -99,12 +100,11 @@ export async function fetchStudentStatusDirectly(entryId) {
 
   if (countError) throw countError;
 
-  // 3. Get the queue config for current serving number
+  // 3. Get the queue config for current serving number (no course_id)
   const { data: config, error: configError } = await supabase
     .from('queue_configs')
     .select('current_serving')
     .eq('schedule_id', entry.schedule_id)
-    .eq('course_id', entry.course_id)
     .eq('year_level', entry.year_level)
     .eq('enrollment_type', entry.enrollment_type)
     .maybeSingle();
@@ -118,4 +118,3 @@ export async function fetchStudentStatusDirectly(entryId) {
     currentServing: config?.current_serving || 0
   };
 }
-
