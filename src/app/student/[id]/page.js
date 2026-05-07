@@ -1,5 +1,4 @@
 'use client';
-
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
@@ -56,7 +55,7 @@ export default function StudentPOVPage() {
 
   // Stop polling once the student's queue entry reaches a terminal state
   useEffect(() => {
-    if (status?.entry?.status === 'completed' || status?.entry?.status === 'skipped') {
+    if (status?.entry?.status === 'completed' || status?.entry?.status === 'removed') {
       if (intervalRef.current) clearInterval(intervalRef.current);
     }
   }, [status]);
@@ -97,6 +96,7 @@ export default function StudentPOVPage() {
   const isCurrentlyServing = entry.status === 'serving';
   const isCompleted = entry.status === 'completed';
   const isSkipped = entry.status === 'skipped';
+  const isRemoved = entry.status === 'removed';
 
   const formatLastUpdated = () => {
     if (!lastUpdated) return '';
@@ -188,9 +188,20 @@ export default function StudentPOVPage() {
             </div>
           )}
 
+          {isRemoved && (
+            <div className="alert alert-danger" style={{ textAlign: 'center' }}>
+              ⚠️ <strong>You have been removed from the queue for failing to show up on time.</strong>
+              <div style={{ marginTop: '12px' }}>
+                <Link href="/register" className="btn btn-primary">
+                  📝 Register Again
+                </Link>
+              </div>
+            </div>
+          )}
+
           {isSkipped && (
             <div className="alert alert-warning" style={{ textAlign: 'center' }}>
-              ⏭️ <strong>You have been skipped.</strong> Please proceed to the encoding room for assistance.
+              🔄 <strong>Your enrollment is in progress.</strong> Please proceed to the encoding room.
             </div>
           )}
 
@@ -249,7 +260,9 @@ export default function StudentPOVPage() {
             </div>
             <div>
               <span style={{ color: '#6b7280', fontWeight: 600, fontSize: '0.8125rem' }}>Status</span>
-              <p><span className={`badge badge-${entry.status}`}>{entry.status}</span></p>
+              <p><span className={`badge badge-${entry.status === 'skipped' ? 'serving' : entry.status}`}>
+                {entry.status === 'skipped' ? 'in progress' : entry.status}
+              </span></p>
             </div>
             <div>
               <span style={{ color: '#6b7280', fontWeight: 600, fontSize: '0.8125rem' }}>Schedule</span>
