@@ -471,6 +471,26 @@ export default function RegisterPage() {
               resetKey={turnstileResetKey}
             />
 
+            {/* No-show policy warning */}
+            <div style={{
+              marginBottom: '16px',
+              padding: '12px 16px',
+              borderRadius: '10px',
+              border: '1.5px solid #fbbf24',
+              background: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
+              display: 'flex',
+              alignItems: 'flex-start',
+              gap: '10px',
+              fontSize: '0.8125rem',
+              color: '#78350f',
+              lineHeight: 1.5
+            }}>
+              <span style={{ fontSize: '1.15rem', flexShrink: 0 }}>⚠️</span>
+              <span>
+                By joining the queue, you agree that if you <strong>fail to show up</strong> when your number is called, you will be <strong>removed from the queue</strong> and will need to register again.
+              </span>
+            </div>
+
             <button
               type="submit"
               className="btn btn-primary btn-lg"

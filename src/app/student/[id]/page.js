@@ -181,6 +181,30 @@ export default function StudentPOVPage() {
           </div>
         )}
 
+        {/* Warning: No-show policy */}
+        {(entry.status === 'waiting' || entry.status === 'serving') && (
+          <div style={{
+            marginBottom: '24px',
+            padding: '14px 20px',
+            borderRadius: '12px',
+            border: '2px solid #fbbf24',
+            background: 'linear-gradient(135deg, #fffbeb, #fef3c7)',
+            display: 'flex',
+            alignItems: 'flex-start',
+            gap: '12px'
+          }}>
+            <span style={{ fontSize: '1.5rem', flexShrink: 0 }}>⚠️</span>
+            <div>
+              <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#92400e', marginBottom: '4px' }}>
+                Important Reminder
+              </div>
+              <div style={{ fontSize: '0.85rem', color: '#78350f', lineHeight: 1.5 }}>
+                If you <strong>fail to show up</strong> when your number is called, you will be <strong>removed from the queue</strong> and will need to register again.
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Status Card */}
         <div className="card" style={{ marginBottom: '24px' }}>
           {isCompleted && (
