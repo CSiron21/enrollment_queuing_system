@@ -154,7 +154,7 @@ export default function AdminDashboardPage() {
         year_level: config.year_level,
         enrollment_type: config.enrollment_type
       });
-      setQueueEntries(data);
+      if (Array.isArray(data)) setQueueEntries(data);
     } catch (err) {
       console.error('Failed to refresh entries from Supabase:', err);
     }
@@ -213,7 +213,7 @@ export default function AdminDashboardPage() {
       });
       const res = await fetch(`/api/queue-entries?${params}&t=${Date.now()}`);
       const data = await res.json();
-      setQueueEntries(data);
+      if (Array.isArray(data)) setQueueEntries(data);
     } catch (err) {
       console.error('Failed to fetch entries:', err);
     }

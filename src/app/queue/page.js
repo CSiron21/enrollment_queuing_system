@@ -30,6 +30,7 @@ export default function QueueBoardPage() {
     try {
       const res = await fetch('/api/queue');
       const data = await res.json();
+      if (!Array.isArray(data)) throw new Error(data.error || 'Invalid response');
       setQueues(data);
       // Seed prev serving
       const map = {};
