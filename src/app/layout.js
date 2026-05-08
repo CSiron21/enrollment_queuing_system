@@ -1,5 +1,6 @@
 import './globals.css';
 import Navbar from '@/components/Navbar';
+import DevCredits from '@/components/DevCredits';
 
 export const metadata = {
   title: 'HAU Enrollment Queuing System',
@@ -15,6 +16,7 @@ export default function RootLayout({ children }) {
       <body>
         <Navbar />
         {children}
+        <DevCredits />
       </body>
     </html>
   );
