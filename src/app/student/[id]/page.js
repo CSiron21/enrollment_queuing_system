@@ -142,7 +142,7 @@ export default function StudentPOVPage() {
             flexWrap: 'wrap',
             gap: '4px'
           }}>
-            <span>🔄 Auto-refreshes every 60 seconds{document.hidden ? ' (paused)' : ''}</span>
+            <span>🔄 This page updates automatically every 60 seconds{document.hidden ? ' (paused)' : ''}</span>
             <span style={{ color: '#6b7280' }}>Last: {formatLastUpdated()}</span>
           </div>
         )}
@@ -249,11 +249,11 @@ export default function StudentPOVPage() {
         {entry.status === 'waiting' && (
           <div className="grid grid-3" style={{ marginBottom: '24px' }}>
             <div className="card stat-card">
-              <div className="stat-value">{currentServing || '—'}</div>
+              <div className="stat-value">{currentServing ? `#${currentServing}` : '—'}</div>
               <div className="stat-label">Now Serving</div>
             </div>
             <div className="card stat-card">
-              <div className="stat-value">{entry.queue_number}</div>
+              <div className="stat-value">#{entry.queue_number}</div>
               <div className="stat-label">Your Number</div>
             </div>
             <div className="card stat-card">
