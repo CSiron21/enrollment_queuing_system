@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useCallback, useRef } from 'react';
+import { useState, useEffect, useLayoutEffect, useCallback, useRef } from 'react';
 import Link from 'next/link';
 import { useAdminContext } from '@/components/AdminShell';
 import { supabase } from '@/lib/supabase';
@@ -13,6 +13,7 @@ export default function QueuesPage() {
   const [selectedQueue, setSelectedQueue] = useState(null);
   const selectedQueueRef = useRef(null);
   const debounceTimer = useRef(null);
+  const scrollSaveRef = useRef(null);
   const [queueEntries, setQueueEntries] = useState([]);
   const [batchSize, setBatchSize] = useState(1);
   const [loadingAction, setLoadingAction] = useState(null);
@@ -67,7 +68,14 @@ export default function QueuesPage() {
         year_level: config.year_level,
         enrollment_type: config.enrollment_type
       });
-      if (Array.isArray(data)) setQueueEntries(data);
+      if (Array.isArray(data)) {
+        // Save scroll position before updating so the view doesn't jump
+        scrollSaveRef.current = {
+          scrollY: window.scrollY,
+          scrollHeight: document.documentElement.scrollHeight,
+        };
+        setQueueEntries(data);
+      }
     } catch (err) {
       console.error('Failed to refresh entries from Supabase:', err);
     }
@@ -114,6 +122,19 @@ export default function QueuesPage() {
     }, 5000);
     return () => clearInterval(pollInterval);
   }, [selectedQueue, fetchQueuesRealtime, fetchQueueEntriesRealtime]);
+
+  // Restore scroll position after realtime/polling re-renders
+  // useLayoutEffect fires synchronously after DOM update but before paint,
+  // so the user never sees the jump.
+  useLayoutEffect(() => {
+    if (scrollSaveRef.current) {
+      const { scrollY: prevScrollY, scrollHeight: prevScrollHeight } = scrollSaveRef.current;
+      const newScrollHeight = document.documentElement.scrollHeight;
+      const heightDiff = newScrollHeight - prevScrollHeight;
+      window.scrollTo(0, prevScrollY + heightDiff);
+      scrollSaveRef.current = null;
+    }
+  }, [queueEntries]);
 
   // --- Handlers ---
   const handleCallNext = async (configId) => {
@@ -169,7 +190,9 @@ export default function QueuesPage() {
     }
   };
 
-  const handleStatusChange = async (entryId, action) => {
+  const handleStatusChange = async (entryId, action, studentName, queueNumber) => {
+    const label = action === 'complete' ? 'completed' : 'skipped';
+    if (!confirm(`Mark "${studentName}" (#${queueNumber}) as ${label}?`)) return;
     setLoadingAction(`${action}-${entryId}`);
 
     const newStatus = action === 'complete' ? 'completed' : 'skipped';
@@ -487,14 +510,14 @@ export default function QueuesPage() {
                                 <div className="admin-entry-actions" style={{ display: 'flex', gap: '4px' }}>
                                   <button
                                     className="btn btn-success btn-sm"
-                                    onClick={() => handleStatusChange(entry.id, 'complete')}
+                                    onClick={() => handleStatusChange(entry.id, 'complete', entry.student_name, entry.queue_number)}
                                     disabled={loadingAction === `complete-${entry.id}`}
                                   >
                                     {loadingAction === `complete-${entry.id}` ? '...' : '✓ Done'}
                                   </button>
                                   <button
                                     className="btn btn-warning btn-sm"
-                                    onClick={() => handleStatusChange(entry.id, 'skip')}
+                                    onClick={() => handleStatusChange(entry.id, 'skip', entry.student_name, entry.queue_number)}
                                     disabled={loadingAction === `skip-${entry.id}`}
                                   >
                                     {loadingAction === `skip-${entry.id}` ? '...' : 'Skip'}
@@ -512,7 +535,7 @@ export default function QueuesPage() {
                                 <div className="admin-entry-actions" style={{ display: 'flex', gap: '4px' }}>
                                   <button
                                     className="btn btn-success btn-sm"
-                                    onClick={() => handleStatusChange(entry.id, 'complete')}
+                                    onClick={() => handleStatusChange(entry.id, 'complete', entry.student_name, entry.queue_number)}
                                     disabled={loadingAction === `complete-${entry.id}`}
                                   >
                                     {loadingAction === `complete-${entry.id}` ? '...' : '✓ Done'}
