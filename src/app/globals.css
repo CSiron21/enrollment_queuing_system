@@ -490,13 +490,25 @@ a:hover {
     grid-template-columns: 1fr;
   }
 
+  /* Keep stat cards in a 3-col grid on mobile instead of stacking */
+  .grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+    gap: var(--space-sm);
+  }
+
+  /* 2x2 grid for stat overview cards */
+  .grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+    gap: var(--space-sm);
+  }
+
   .radio-group {
     flex-direction: column;
   }
 
   .page-header {
     background: linear-gradient(135deg, var(--primary-500), var(--primary-800));
-    padding: var(--space-2xl) var(--space-md);
+    padding: var(--space-xl) var(--space-md);
     border-bottom: none;
   }
 
@@ -506,8 +518,8 @@ a:hover {
   }
 
   .page-header h1 {
-    font-size: 1.7rem;
-    margin-bottom: var(--space-sm);
+    font-size: 1.5rem;
+    margin-bottom: var(--space-xs);
     background: none;
     -webkit-text-fill-color: white;
     color: white;
@@ -521,6 +533,7 @@ a:hover {
   .page-header p {
     color: white;
     opacity: 0.95;
+    font-size: 0.9375rem;
   }
 
   .page-header .track-title {
@@ -563,11 +576,20 @@ a:hover {
   /* Cards: less padding on mobile */
   .card {
     padding: var(--space-md);
+    border-radius: var(--radius-md);
   }
 
   /* Stat cards */
+  .stat-card {
+    padding: var(--space-md) var(--space-sm);
+  }
+
   .stat-value {
-    font-size: 2rem;
+    font-size: 1.75rem;
+  }
+
+  .stat-label {
+    font-size: 0.6875rem;
   }
 
   /* Queue number display */
@@ -583,6 +605,88 @@ a:hover {
   .modal {
     margin: var(--space-sm);
     max-height: 85vh;
+  }
+
+  /* Container: slightly less padding on mobile */
+  .container {
+    padding: 0 var(--space-sm);
+  }
+
+  /* Form elements: larger touch targets */
+  .form-input,
+  .form-select {
+    padding: 12px 14px;
+    font-size: 1rem;
+  }
+
+  /* Buttons: larger touch targets */
+  .btn {
+    padding: 12px 20px;
+    font-size: 0.9375rem;
+  }
+
+  .btn-sm {
+    padding: 8px 14px;
+    font-size: 0.8125rem;
+  }
+
+  .btn-lg {
+    padding: 16px 28px;
+    font-size: 1.0625rem;
+  }
+
+  /* Turnstile widget: prevent overflow on small screens */
+  [style*="justify-content: center"][style*="margin: 16px 0"] {
+    transform: scale(0.9);
+    transform-origin: center;
+  }
+
+  /* Landing page role selection grid */
+  .guide-wrapper .card {
+    padding: var(--space-lg) var(--space-md) !important;
+  }
+
+  /* Alert messages: slightly smaller on mobile */
+  .alert {
+    padding: 12px 14px;
+    font-size: 0.875rem;
+  }
+}
+
+/* Very small phones (iPhone SE, etc.) */
+@media (max-width: 380px) {
+  .grid-3 {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 4px;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .stat-label {
+    font-size: 0.625rem;
+  }
+
+  .stat-card {
+    padding: var(--space-sm) var(--space-xs);
+  }
+
+  .page-header h1 {
+    font-size: 1.25rem;
+  }
+
+  .page-header p {
+    font-size: 0.8125rem;
+  }
+
+  .queue-number-big {
+    font-size: 3rem;
+  }
+
+  .btn-lg {
+    padding: 14px 20px;
+    font-size: 1rem;
   }
 }
 
@@ -729,32 +833,43 @@ a:hover {
 }
 
 @media (max-width: 768px) {
+  .navbar {
+    padding: var(--space-xs) 0;
+  }
+
   .navbar-inner {
-    flex-direction: column;
-    gap: var(--space-sm);
-    padding: var(--space-md);
+    flex-direction: row;
+    flex-wrap: nowrap;
+    gap: 0;
+    padding: var(--space-sm) var(--space-sm);
+    align-items: center;
   }
   
   .navbar-logo {
-    height: 44px;
-    margin: 0 8px 0 0;
+    height: 36px;
+    margin: 0 6px 0 0;
   }
   
   .navbar-brand {
-    font-size: 1.1rem;
-    text-align: center;
+    font-size: 0.875rem;
+    gap: 4px;
+    flex-shrink: 0;
   }
   
   .navbar-links {
-    gap: var(--space-md);
-    flex-wrap: wrap;
-    justify-content: center;
-    width: 100%;
-    margin-top: var(--space-xs);
+    gap: var(--space-sm);
+    flex-wrap: nowrap;
+    justify-content: flex-end;
+    margin-top: 0;
   }
   
   .navbar-links a {
-    font-size: 0.875rem;
+    font-size: 0.75rem;
+    white-space: nowrap;
+  }
+
+  .navbar-links li {
+    list-style: none;
   }
 }
 

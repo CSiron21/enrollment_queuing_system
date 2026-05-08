@@ -64,7 +64,16 @@ export default function TrackPage() {
 
   return (
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: '#f3f4f6' }}>
-      <section className="page-header" style={{ padding: '48px 0', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+      <style>{`
+        @media (max-width: 768px) {
+          .track-hero { padding: 32px 0 !important; }
+          .track-hero h1 { font-size: 1.3rem !important; gap: 8px !important; }
+          .track-hero p { font-size: 0.9rem !important; }
+          .track-form-card { padding: 24px 16px !important; }
+          .track-container { margin-top: 20px !important; }
+        }
+      `}</style>
+      <section className="page-header track-hero" style={{ padding: '48px 0', textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         <InteractiveParticles />
         <div className="container" style={{ position: 'relative', zIndex: 1, pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <h1 className="track-title">
@@ -75,8 +84,8 @@ export default function TrackPage() {
         </div>
       </section>
 
-      <div className="container" style={{ maxWidth: '500px', flex: 1, marginTop: '32px' }}>
-        <div className="card" style={{ padding: '32px' }}>
+      <div className="container track-container" style={{ maxWidth: '500px', flex: 1, marginTop: '32px' }}>
+        <div className="card track-form-card" style={{ padding: '32px' }}>
           {error && <div className="alert alert-danger" style={{ marginBottom: '24px' }}>{error}</div>}
 
           <form onSubmit={handleSubmit}>

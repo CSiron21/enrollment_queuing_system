@@ -355,11 +355,32 @@
     flex-direction: column;
     align-items: flex-start;
     gap: 12px;
-    padding: 20px;
+    padding: 16px;
+  }
+
+  .qb-header-left {
+    gap: 10px;
+  }
+
+  .qb-logo {
+    height: 36px;
+  }
+
+  .qb-header-title {
+    font-size: 1.125rem;
+  }
+
+  .qb-header-subtitle {
+    font-size: 0.75rem;
+  }
+
+  .qb-header-right {
+    width: 100%;
+    justify-content: space-between;
   }
 
   .qb-body {
-    padding: 16px;
+    padding: 12px;
   }
 
   .qb-matrix {
@@ -400,6 +421,52 @@
 
   .qb-cell {
     min-width: unset;
+  }
+
+  .qb-cell-number {
+    font-size: 1.5rem;
+  }
+}
+
+/* Very small phones */
+@media (max-width: 380px) {
+  .qb-header {
+    padding: 12px;
+    gap: 8px;
+  }
+
+  .qb-logo {
+    height: 28px;
+  }
+
+  .qb-header-title {
+    font-size: 0.95rem;
+  }
+
+  .qb-header-subtitle {
+    font-size: 0.6875rem;
+  }
+
+  .qb-back-btn {
+    width: 30px;
+    height: 30px;
+  }
+
+  .qb-live-badge {
+    font-size: 0.625rem;
+    padding: 4px 10px;
+  }
+
+  .qb-clock {
+    font-size: 0.9rem;
+  }
+
+  .qb-body {
+    padding: 8px;
+  }
+
+  .qb-cell-number {
+    font-size: 1.25rem;
   }
 }
 

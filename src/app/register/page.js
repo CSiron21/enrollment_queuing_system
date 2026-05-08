@@ -201,6 +201,19 @@ export default function RegisterPage() {
     }
   };
 
+  // Mobile-responsive styles for the register page
+  const registerMobileStyles = `
+    @media (max-width: 768px) {
+      .register-header { padding: 32px 0 !important; }
+      .register-header h1 { font-size: 1.3rem !important; gap: 8px !important; }
+      .register-header h1 img { height: 28px !important; }
+      .register-header p { font-size: 0.875rem !important; }
+      .register-form-card { padding: 20px 16px !important; }
+      .register-location-card { padding: 24px 16px !important; }
+      .register-location-instructions li { font-size: 0.8rem !important; }
+    }
+  `;
+
   // ============================================
   // Loading state
   // ============================================
@@ -219,7 +232,8 @@ export default function RegisterPage() {
   if (locationStatus !== 'granted') {
     return (
       <>
-        <section className="page-header" style={{ textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+        <style>{registerMobileStyles}</style>
+        <section className="page-header register-header" style={{ textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
           <InteractiveParticles />
           <div className="container" style={{ position: 'relative', zIndex: 1, pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
             <h1 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', margin: 0, paddingBottom: '8px' }}>
@@ -231,7 +245,7 @@ export default function RegisterPage() {
         </section>
 
         <div className="container" style={{ maxWidth: '500px' }}>
-          <div className="card" style={{ padding: '32px', textAlign: 'center' }}>
+          <div className="card register-location-card" style={{ padding: '32px', textAlign: 'center' }}>
 
             {locationStatus === 'checking' && (
               <>
@@ -264,7 +278,7 @@ export default function RegisterPage() {
                   marginBottom: '20px'
                 }}>
                   <p style={{ fontWeight: 700, marginBottom: '8px', fontSize: '0.9rem' }}>How to enable location:</p>
-                  <ul style={{ margin: 0, paddingLeft: '20px', fontSize: '0.85rem', color: '#475569', lineHeight: 1.8 }}>
+                  <ul className="register-location-instructions" style={{ margin: 0, paddingLeft: '20px', fontSize: '0.85rem', color: '#475569', lineHeight: 1.8 }}>
                     <li><strong>Chrome (Android):</strong> Tap the lock icon in the address bar → Permissions → Location → Allow</li>
                     <li><strong>Safari (iPhone):</strong> Go to Settings → Safari → Location → Allow</li>
                     <li><strong>Chrome (Desktop):</strong> Click the lock icon in the address bar → Site Settings → Location → Allow</li>
@@ -335,7 +349,8 @@ export default function RegisterPage() {
 
   return (
     <>
-      <section className="page-header" style={{ textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
+      <style>{registerMobileStyles}</style>
+      <section className="page-header register-header" style={{ textAlign: 'center', position: 'relative', overflow: 'hidden' }}>
         <InteractiveParticles />
         <div className="container" style={{ position: 'relative', zIndex: 1, pointerEvents: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center' }}>
           <h1 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '12px', margin: 0, paddingBottom: '8px' }}>

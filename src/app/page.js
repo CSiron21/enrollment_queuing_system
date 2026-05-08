@@ -10,8 +10,18 @@ export default function HomePage() {
 
   return (
     <>
+      <style>{`
+        @media (max-width: 768px) {
+          .home-hero { padding-top: 48px !important; padding-bottom: 48px !important; }
+          .home-hero-logo { height: 80px !important; }
+          .home-grid { grid-template-columns: 1fr !important; gap: 12px !important; }
+          .home-grid-card { padding: 20px 16px !important; }
+          .home-grid-card h3 { font-size: 1rem !important; }
+          .home-grid-icon { height: 40px !important; }
+        }
+      `}</style>
       <section
-        className="page-header"
+        className="page-header home-hero"
         style={{
           paddingTop: '80px',
           paddingBottom: '80px',
@@ -26,7 +36,7 @@ export default function HomePage() {
           style={{ position: 'relative', zIndex: 1, pointerEvents: 'none' }}
         >
           <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '24px' }}>
-            <img src="/soc2.png" alt="SOC Logo" style={{ height: '120px', width: 'auto' }} />
+            <img src="/soc2.png" alt="SOC Logo" className="home-hero-logo" style={{ height: '120px', width: 'auto' }} />
           </div>
           <h1 style={{ marginBottom: '8px' }}>
             <span>
@@ -72,6 +82,7 @@ export default function HomePage() {
                 </p>
 
                 <div
+                  className="home-grid"
                   style={{
                     display: 'grid',
                     gridTemplateColumns: '1fr 1fr',
@@ -200,6 +211,7 @@ export default function HomePage() {
                 </p>
 
                 <div
+                  className="home-grid"
                   style={{
                     display: 'grid',
                     gridTemplateColumns: '1fr 1fr',
@@ -336,6 +348,7 @@ export default function HomePage() {
                 </p>
 
                 <div
+                  className="home-grid"
                   style={{
                     display: 'grid',
                     gridTemplateColumns: '1fr 1fr',

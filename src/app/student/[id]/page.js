@@ -108,13 +108,27 @@ export default function StudentPOVPage() {
     <>
       <style>{`
         @media (max-width: 768px) {
-          .student-details-grid { grid-template-columns: 1fr !important; }
+          .student-details-grid { grid-template-columns: 1fr 1fr !important; gap: 8px !important; }
           .student-actions { flex-direction: column !important; }
           .student-actions a { width: 100% !important; justify-content: center !important; }
           .student-refresh-bar { flex-direction: column !important; align-items: flex-start !important; gap: 4px !important; }
+          .student-hero { padding: 32px 0 !important; }
+          .student-hero h1 { font-size: 1.3rem !important; gap: 6px !important; }
+          .student-hero h1 img { height: 28px !important; }
+          .student-hero p { font-size: 0.85rem !important; }
+          .student-tip-box { padding: 12px 14px !important; gap: 10px !important; }
+          .student-tip-box .tip-title { font-size: 0.875rem !important; }
+          .student-tip-box .tip-body { font-size: 0.8rem !important; }
+          .student-warn-box { padding: 10px 14px !important; gap: 10px !important; }
+          .student-warn-box .warn-title { font-size: 0.875rem !important; }
+          .student-warn-box .warn-body { font-size: 0.8rem !important; }
+          .student-container { padding: 0 8px !important; }
+        }
+        @media (max-width: 380px) {
+          .student-details-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
-      <section className="page-header">
+      <section className="page-header student-hero">
         <div className="container">
           <h1 style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <img src="/soc2.png" alt="SOC Logo" style={{ height: '36px', width: 'auto' }} /> Your Queue Status
@@ -125,7 +139,7 @@ export default function StudentPOVPage() {
         </div>
       </section>
 
-      <div className="container" style={{ maxWidth: '600px' }}>
+      <div className="container student-container" style={{ maxWidth: '600px' }}>
         {/* Auto-refresh notice */}
         {entry.status === 'waiting' && (
           <div className="student-refresh-bar" style={{
@@ -158,7 +172,7 @@ export default function StudentPOVPage() {
 
         {/* Tip: Save your queue number */}
         {entry.status === 'waiting' && (
-          <div style={{
+          <div className="student-tip-box" style={{
             marginBottom: '24px',
             padding: '16px 20px',
             borderRadius: '12px',
@@ -170,10 +184,10 @@ export default function StudentPOVPage() {
           }}>
             <span style={{ fontSize: '1.5rem', flexShrink: 0 }}>📸</span>
             <div>
-              <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#1e40af', marginBottom: '4px' }}>
+              <div className="tip-title" style={{ fontWeight: 700, fontSize: '0.95rem', color: '#1e40af', marginBottom: '4px' }}>
                 Save your queue number!
               </div>
-              <div style={{ fontSize: '0.85rem', color: '#1d4ed8', lineHeight: 1.5 }}>
+              <div className="tip-body" style={{ fontSize: '0.85rem', color: '#1d4ed8', lineHeight: 1.5 }}>
                 Take a <strong>screenshot or photo</strong> of this page for your reference.
                 You can also check your queue status anytime by visiting the website and using the <strong>Find Queue</strong> page with your Student ID.
               </div>
@@ -183,7 +197,7 @@ export default function StudentPOVPage() {
 
         {/* Warning: No-show policy */}
         {(entry.status === 'waiting' || entry.status === 'serving') && (
-          <div style={{
+          <div className="student-warn-box" style={{
             marginBottom: '24px',
             padding: '14px 20px',
             borderRadius: '12px',
@@ -195,10 +209,10 @@ export default function StudentPOVPage() {
           }}>
             <span style={{ fontSize: '1.5rem', flexShrink: 0 }}>⚠️</span>
             <div>
-              <div style={{ fontWeight: 700, fontSize: '0.95rem', color: '#92400e', marginBottom: '4px' }}>
+              <div className="warn-title" style={{ fontWeight: 700, fontSize: '0.95rem', color: '#92400e', marginBottom: '4px' }}>
                 Important Reminder
               </div>
-              <div style={{ fontSize: '0.85rem', color: '#78350f', lineHeight: 1.5 }}>
+              <div className="warn-body" style={{ fontSize: '0.85rem', color: '#78350f', lineHeight: 1.5 }}>
                 If you <strong>fail to show up</strong> when your number is called, you will be <strong>removed from the queue</strong> and will need to register again.
               </div>
             </div>
