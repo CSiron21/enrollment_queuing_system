@@ -838,34 +838,32 @@ a:hover {
   }
 
   .navbar-inner {
-    flex-direction: row;
-    flex-wrap: nowrap;
-    gap: 0;
-    padding: var(--space-sm) var(--space-sm);
+    flex-direction: column;
+    gap: var(--space-xs);
+    padding: var(--space-sm) var(--space-md);
     align-items: center;
   }
   
   .navbar-logo {
-    height: 36px;
+    height: 32px;
     margin: 0 6px 0 0;
   }
   
   .navbar-brand {
-    font-size: 0.875rem;
-    gap: 4px;
-    flex-shrink: 0;
+    font-size: 0.9375rem;
+    gap: 6px;
   }
   
   .navbar-links {
-    gap: var(--space-sm);
-    flex-wrap: nowrap;
-    justify-content: flex-end;
+    gap: var(--space-md);
+    flex-wrap: wrap;
+    justify-content: center;
+    width: 100%;
     margin-top: 0;
   }
   
   .navbar-links a {
-    font-size: 0.75rem;
-    white-space: nowrap;
+    font-size: 0.8125rem;
   }
 
   .navbar-links li {
