@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import InteractiveParticles from '@/components/InteractiveParticles';
 import Turnstile from '@/components/Turnstile';
+import NotificationPrompt from '@/components/NotificationPrompt';
 
 export default function TrackPage() {
   const router = useRouter();
@@ -86,6 +87,9 @@ export default function TrackPage() {
 
       <div className="container track-container" style={{ maxWidth: '500px', flex: 1, marginTop: '32px' }}>
         <div className="card track-form-card" style={{ padding: '32px' }}>
+          {/* Notification opt-in prompt */}
+          <NotificationPrompt />
+
           {error && <div className="alert alert-danger" style={{ marginBottom: '24px' }}>{error}</div>}
 
           <form onSubmit={handleSubmit}>

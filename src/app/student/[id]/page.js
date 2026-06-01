@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams } from 'next/navigation';
 import Link from 'next/link';
 import { fetchStudentStatusDirectly } from '@/lib/supabase-client';
+import NotificationPrompt from '@/components/NotificationPrompt';
 
 export default function StudentPOVPage() {
   const { id } = useParams();
@@ -12,19 +13,60 @@ export default function StudentPOVPage() {
   const [error, setError] = useState('');
   const [lastUpdated, setLastUpdated] = useState(null);
   const intervalRef = useRef(null);
+  const notifiedApproachingRef = useRef(false); // prevent spamming "approaching" notification
+  const notifiedServingRef = useRef(false);     // prevent spamming "now serving" notification
 
   // Direct Supabase query — zero Vercel function invocations
+  // Fire a browser notification if permission is granted
+  const fireNotification = useCallback((title, body) => {
+    if (typeof window !== 'undefined' && 'Notification' in window && Notification.permission === 'granted') {
+      try {
+        new Notification(title, {
+          body,
+          icon: '/soc2.png',
+          tag: 'queue-notification', // prevents stacking duplicates
+        });
+      } catch {
+        // Silently fail if notification can't be created
+      }
+    }
+  }, []);
+
   const fetchStatus = useCallback(async () => {
     try {
       const data = await fetchStudentStatusDirectly(id);
       setStatus(data);
       setLastUpdated(new Date());
+
+      // === Notification logic ===
+      const { entry, currentServing } = data;
+      if (entry && currentServing) {
+        const distance = entry.queue_number - currentServing;
+
+        // Notify when within 5 positions (approaching)
+        if (distance <= 5 && distance > 0 && entry.status === 'waiting' && !notifiedApproachingRef.current) {
+          fireNotification(
+            '🔔 Your turn is almost here!',
+            `You are #${entry.queue_number} — only ${distance} student${distance === 1 ? '' : 's'} ahead. Please head to the encoding room.`
+          );
+          notifiedApproachingRef.current = true;
+        }
+
+        // Notify when it's their turn
+        if (entry.status === 'serving' && !notifiedServingRef.current) {
+          fireNotification(
+            '🚨 It\'s your turn!',
+            'Please proceed to the encoding room now.'
+          );
+          notifiedServingRef.current = true;
+        }
+      }
     } catch (err) {
       setError(err.message);
     } finally {
       setLoading(false);
     }
-  }, [id]);
+  }, [id, fireNotification]);
 
   useEffect(() => {
     fetchStatus();
@@ -159,6 +201,11 @@ export default function StudentPOVPage() {
             <span>🔄 This page updates automatically every 60 seconds{document.hidden ? ' (paused)' : ''}</span>
             <span style={{ color: '#6b7280' }}>Last: {formatLastUpdated()}</span>
           </div>
+        )}
+
+        {/* Notification opt-in prompt */}
+        {entry.status === 'waiting' && (
+          <NotificationPrompt />
         )}
 
         {/* Queue Number Card */}

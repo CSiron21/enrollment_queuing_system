@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { useRouter } from 'next/navigation';
 import InteractiveParticles from '@/components/InteractiveParticles';
 import Turnstile from '@/components/Turnstile';
+import NotificationPrompt from '@/components/NotificationPrompt';
 import { isWithinCampus } from '@/lib/geofence';
 
 export default function RegisterPage() {
@@ -485,6 +486,9 @@ export default function RegisterPage() {
               onExpire={handleTurnstileExpire}
               resetKey={turnstileResetKey}
             />
+
+            {/* Notification opt-in prompt */}
+            <NotificationPrompt />
 
             {/* No-show policy warning */}
             <div style={{
