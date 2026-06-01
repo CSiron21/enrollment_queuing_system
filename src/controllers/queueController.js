@@ -8,6 +8,10 @@ const queueController = {
     const schedule = await Schedule.getById(schedule_id);
     if (!schedule) throw new Error('Schedule not found');
 
+    // Ensure queue config exists for this year-level group BEFORE creating the entry.
+    // The RPC's FOR UPDATE lock needs this row to exist to properly serialize concurrent requests.
+    await QueueConfig.getOrCreate(schedule_id, year_level, enrollment_type);
+
     // Create queue entry (auto-assigns queue number via RPC)
     // course_id is passed through to the RPC and stored as metadata
     const entry = await QueueEntry.create({
@@ -18,9 +22,6 @@ const queueController = {
       student_name,
       student_id
     });
-
-    // Ensure queue config exists for this year-level group
-    await QueueConfig.getOrCreate(schedule_id, year_level, enrollment_type);
 
     return entry;
   },

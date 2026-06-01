@@ -1,29 +1,29 @@
 /* ============================
    Queue Board — Matrix Dashboard
-   Dark / High-Contrast TV Theme
+   Light / High-Contrast Theme
    ============================ */
 
 .qb {
-  --qb-bg: #0b0f19;
-  --qb-surface: #141a2a;
-  --qb-surface-hover: #1c2438;
-  --qb-border: #1e293b;
-  --qb-border-light: rgba(255, 255, 255, 0.06);
+  --qb-bg: #f8fafc;
+  --qb-surface: #ffffff;
+  --qb-surface-hover: #f1f5f9;
+  --qb-border: #e2e8f0;
+  --qb-border-light: rgba(0, 0, 0, 0.04);
 
-  --qb-text-primary: #f1f5f9;
-  --qb-text-secondary: #94a3b8;
+  --qb-text-primary: #0f172a;
+  --qb-text-secondary: #475569;
   --qb-text-muted: #64748b;
 
-  --qb-accent: #f59e0b;
-  --qb-accent-glow: rgba(245, 158, 11, 0.25);
-  --qb-serving-bg: rgba(245, 158, 11, 0.10);
-  --qb-serving-border: rgba(245, 158, 11, 0.30);
+  --qb-accent: #b45309;
+  --qb-accent-glow: rgba(180, 83, 9, 0.15);
+  --qb-serving-bg: rgba(245, 158, 11, 0.08);
+  --qb-serving-border: rgba(180, 83, 9, 0.30);
 
-  --qb-waiting: #3b82f6;
-  --qb-done: #22c55e;
-  --qb-empty: #475569;
+  --qb-waiting: #2563eb;
+  --qb-done: #16a34a;
+  --qb-empty: #94a3b8;
 
-  --qb-header-bg: linear-gradient(135deg, #1e1030 0%, #0f172a 50%, #0c1220 100%);
+  --qb-header-bg: linear-gradient(135deg, #fef3c7 0%, #ffffff 50%, #fff7ed 100%);
 
   min-height: 100vh;
   background: var(--qb-bg);
@@ -52,7 +52,7 @@
   left: 10%;
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle, rgba(167, 48, 22, 0.18) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(245, 158, 11, 0.10) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -63,7 +63,7 @@
   right: 10%;
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle, rgba(245, 158, 11, 0.12) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(180, 83, 9, 0.07) 0%, transparent 70%);
   pointer-events: none;
 }
 
@@ -82,8 +82,8 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(255, 255, 255, 0.06);
-  border: 1px solid rgba(255, 255, 255, 0.1);
+  background: rgba(0, 0, 0, 0.04);
+  border: 1px solid var(--qb-border);
   color: var(--qb-text-secondary);
   transition: all 0.2s ease;
   text-decoration: none;
@@ -91,15 +91,14 @@
 }
 
 .qb-back-btn:hover {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.08);
   color: var(--qb-text-primary);
-  border-color: rgba(255, 255, 255, 0.2);
+  border-color: #cbd5e1;
 }
 
 .qb-logo {
   height: 48px;
   width: auto;
-  filter: brightness(1.1);
 }
 
 .qb-header-title {
@@ -134,12 +133,12 @@
   align-items: center;
   gap: 8px;
   padding: 6px 14px;
-  background: rgba(239, 68, 68, 0.15);
-  border: 1px solid rgba(239, 68, 68, 0.30);
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.25);
   border-radius: 9999px;
   font-size: 0.75rem;
   font-weight: 700;
-  color: #f87171;
+  color: #dc2626;
   text-transform: uppercase;
   letter-spacing: 0.08em;
 }
@@ -244,23 +243,25 @@
   transition: all 0.25s ease;
   position: relative;
   overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
 }
 
 .qb-cell:hover {
   background: var(--qb-surface-hover);
-  border-color: rgba(255, 255, 255, 0.1);
+  border-color: #cbd5e1;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
 /* Active / serving cell */
 .qb-cell.qb-cell--active {
   background: var(--qb-serving-bg);
   border-color: var(--qb-serving-border);
-  box-shadow: 0 0 20px var(--qb-accent-glow), inset 0 0 20px rgba(245, 158, 11, 0.04);
+  box-shadow: 0 0 16px var(--qb-accent-glow), 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .qb-cell--active .qb-cell-number {
   color: var(--qb-accent);
-  text-shadow: 0 0 16px var(--qb-accent-glow);
+  text-shadow: 0 0 12px var(--qb-accent-glow);
 }
 
 /* Empty cell (no queue or not serving) */
@@ -341,7 +342,7 @@
 
 /* ---- Flash animation for newly updated numbers ---- */
 @keyframes qb-flash {
-  0% { background: rgba(245, 158, 11, 0.3); }
+  0% { background: rgba(245, 158, 11, 0.25); }
   100% { background: var(--qb-serving-bg); }
 }
 
