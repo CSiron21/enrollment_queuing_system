@@ -20,7 +20,7 @@ export default function QueuesPage() {
   const [initialLoading, setInitialLoading] = useState(true);
 
   // Helpers
-  const yearSuffix = (y) => ['', '1st', '2nd', '3rd', '4th'][y] || `${y}th`;
+  const yearSuffix = (y) => ['All', '1st', '2nd', '3rd', '4th'][y] || `${y}th`;
   const typeLabel = (t) => t === 'block_section' ? 'Block Section' : 'Irregular';
 
   // --- Data fetching ---

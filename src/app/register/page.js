@@ -154,8 +154,13 @@ export default function RegisterPage() {
       const freshSchedules = await schedulesRes.json();
 
       // Find the matching schedule (by year level and enrollment type — no longer course-specific)
+      // First try exact year-level match, then fall back to "All Levels" (year_level=0)
+      const studentYear = parseInt(form.year_level);
       const schedule = freshSchedules.find(
-        s => s.year_level === parseInt(form.year_level) &&
+        s => s.year_level === studentYear &&
+             s.enrollment_type === form.enrollment_type
+      ) || freshSchedules.find(
+        s => s.year_level === 0 &&
              s.enrollment_type === form.enrollment_type
       );
 
@@ -169,7 +174,7 @@ export default function RegisterPage() {
         body: JSON.stringify({
           schedule_id: schedule.id,
           course_id: form.course_id,
-          year_level: parseInt(form.year_level),
+          year_level: schedule.year_level,
           enrollment_type: form.enrollment_type,
           student_name: form.student_name,
           student_id: form.student_id,

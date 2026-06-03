@@ -23,7 +23,7 @@ CREATE TABLE courses (
 CREATE TABLE enrollment_schedules (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   enrollment_type TEXT NOT NULL CHECK (enrollment_type IN ('block_section', 'irregular')),
-  year_level INT NOT NULL CHECK (year_level BETWEEN 1 AND 4),
+  year_level INT NOT NULL CHECK (year_level BETWEEN 0 AND 4),
   schedule_date DATE NOT NULL,
   start_time TIME NOT NULL,
   end_time TIME NOT NULL,
@@ -37,7 +37,7 @@ CREATE TABLE queue_entries (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   schedule_id UUID NOT NULL REFERENCES enrollment_schedules(id) ON DELETE CASCADE,
   course_id UUID NOT NULL REFERENCES courses(id) ON DELETE CASCADE,
-  year_level INT NOT NULL CHECK (year_level BETWEEN 1 AND 4),
+  year_level INT NOT NULL CHECK (year_level BETWEEN 0 AND 4),
   enrollment_type TEXT NOT NULL CHECK (enrollment_type IN ('block_section', 'irregular')),
   student_name TEXT NOT NULL,
   student_id TEXT NOT NULL,
@@ -50,7 +50,7 @@ CREATE TABLE queue_entries (
 CREATE TABLE queue_configs (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   schedule_id UUID NOT NULL REFERENCES enrollment_schedules(id) ON DELETE CASCADE,
-  year_level INT NOT NULL CHECK (year_level BETWEEN 1 AND 4),
+  year_level INT NOT NULL CHECK (year_level BETWEEN 0 AND 4),
   enrollment_type TEXT NOT NULL CHECK (enrollment_type IN ('block_section', 'irregular')),
   current_serving INT DEFAULT 0,
   is_active BOOLEAN DEFAULT false,

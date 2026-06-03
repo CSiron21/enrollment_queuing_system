@@ -23,7 +23,7 @@ export default function SchedulesPage() {
   });
 
   // Helpers
-  const yearSuffix = (y) => ['', '1st', '2nd', '3rd', '4th'][y] || `${y}th`;
+  const yearSuffix = (y) => ['All', '1st', '2nd', '3rd', '4th'][y] || `${y}th`;
   const typeLabel = (t) => t === 'block_section' ? 'Block Section' : 'Irregular';
   const formatTime = (time) => {
     if (!time) return '';
@@ -257,6 +257,7 @@ export default function SchedulesPage() {
                   onChange={e => setScheduleForm(f => ({ ...f, year_level: e.target.value }))}
                   required
                 >
+                  <option value="0">All Levels</option>
                   <option value="1">1st Year</option>
                   <option value="2">2nd Year</option>
                   <option value="3">3rd Year</option>

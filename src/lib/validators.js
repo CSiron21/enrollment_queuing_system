@@ -6,7 +6,7 @@ const uuid = z.string().uuid('Invalid UUID format');
 // Schedule validation (no course_id — schedules are per year-level)
 export const createScheduleSchema = z.object({
   enrollment_type: z.enum(['block_section', 'irregular'], { message: 'Must be "block_section" or "irregular"' }),
-  year_level: z.number().int().min(1).max(4, 'Year level must be between 1 and 4'),
+  year_level: z.number().int().min(0).max(4, 'Year level must be between 0 and 4'),
   schedule_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, 'Date must be YYYY-MM-DD format'),
   start_time: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/, 'Time must be HH:MM format'),
   end_time: z.string().regex(/^\d{2}:\d{2}(:\d{2})?$/, 'Time must be HH:MM format')
@@ -24,7 +24,7 @@ export const createCourseSchema = z.object({
 export const joinQueueSchema = z.object({
   schedule_id: uuid,
   course_id: uuid,
-  year_level: z.number().int().min(1).max(4),
+  year_level: z.number().int().min(0).max(4),
   enrollment_type: z.enum(['block_section', 'irregular']),
   student_name: z.string().min(1, 'Student name is required').max(100),
   student_id: z.string().regex(/^\d{8}$/, 'Student ID must be exactly 8 digits'),

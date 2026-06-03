@@ -133,7 +133,7 @@ export default function StudentPOVPage() {
     return `${displayHour}:${m} ${ampm}`;
   };
 
-  const yearSuffix = (y) => ['', '1st', '2nd', '3rd', '4th'][y] || `${y}th`;
+  const yearSuffix = (y) => ['All', '1st', '2nd', '3rd', '4th'][y] || `${y}th`;
   const typeLabel = entry.enrollment_type === 'block_section' ? 'Block Section' : 'Irregular / Free Select';
 
   const isCurrentlyServing = entry.status === 'serving';

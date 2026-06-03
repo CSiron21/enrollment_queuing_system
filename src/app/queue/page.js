@@ -85,7 +85,7 @@ export default function QueueBoardPage() {
     };
   }, [fetchQueuesInitial, fetchQueuesRealtime]);
 
-  const yearSuffix = (y) => ['', '1st', '2nd', '3rd', '4th'][y] || `${y}th`;
+  const yearSuffix = (y) => ['All', '1st', '2nd', '3rd', '4th'][y] || `${y}th`;
   const typeLabel = (t) => t === 'block_section' ? 'Block Section' : 'Irregular';
 
   // Group queues by enrollment type for display
