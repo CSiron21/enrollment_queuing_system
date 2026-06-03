@@ -130,21 +130,28 @@ BEGIN
     RAISE EXCEPTION 'DUPLICATE_REGISTRATION:%', v_existing.id;
   END IF;
 
-  -- 1. Lock the queue configuration row (year-level grouping, no course_id)
+  -- 1. Ensure the queue_configs row exists BEFORE locking.
+  --    Without this, FOR UPDATE finds zero rows and acquires NO lock,
+  --    allowing concurrent transactions to race and assign duplicate/out-of-order numbers.
+  INSERT INTO queue_configs (schedule_id, year_level, enrollment_type)
+  VALUES (p_schedule_id, p_year_level, p_enrollment_type)
+  ON CONFLICT (schedule_id, year_level, enrollment_type) DO NOTHING;
+
+  -- 2. Lock the queue configuration row (year-level grouping, no course_id)
   PERFORM 1 FROM queue_configs 
   WHERE schedule_id = p_schedule_id 
     AND year_level = p_year_level 
     AND enrollment_type = p_enrollment_type
   FOR UPDATE;
 
-  -- 2. Find the current highest queue number for this year-level group
+  -- 3. Find the current highest queue number for this year-level group
   SELECT COALESCE(MAX(queue_number), 0) + 1 INTO v_next_num
   FROM queue_entries
   WHERE schedule_id = p_schedule_id 
     AND year_level = p_year_level 
     AND enrollment_type = p_enrollment_type;
 
-  -- 3. Insert the new queue entry (course_id is stored as metadata)
+  -- 4. Insert the new queue entry (course_id is stored as metadata)
   INSERT INTO queue_entries (
     schedule_id, course_id, year_level, enrollment_type, 
     student_name, student_id, queue_number, status
